@@ -2,7 +2,7 @@
   description = "TODO: add description";
 
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-22.05";
+    nixpkgs.url = "github:thexyno/nixpkgs/iso-timeout";
     darwin = {
       url = "github:lnl7/nix-darwin/master";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -28,8 +28,7 @@
       inherit lib;
 
       nixosModules = findNixosModules self;
-
-      isos = mapAttrs (n: v: v { inherit inputs; }) (findModules "${self}/isos" self);
+      isos = mapAttrs (n: v: import "${self}/isos/${(last v)}" { inherit inputs; }) (zipAttrs (map (x: { "${removeSuffix ".nix" x}" = x; }) (attrNames (filterAttrs (n: v: v == "regular") (readDir "${self}/isos")))));
 
       darwinModules = attrValues (findDarwinModules self);
 
